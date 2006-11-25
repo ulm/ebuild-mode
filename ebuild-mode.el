@@ -1,8 +1,9 @@
-;;; ebuild-mode.el --- a mode for editing Gentoo GNU/Linux .ebuild and .eclass files.
+;;; ebuild-mode.el --- a mode for editing Portage .ebuild, .eclass and .eselect files.
 
 ;; Copyright (C) 2003-2006  Gentoo Foundation
 
 ;; Author: Matthew Kennedy <mkennedy@gentoo.org>
+;; Author: Diego Pettenò <flameeyes@gentoo.org>
 ;; Keywords: convenience
 
 ;; This file is free software; you can redistribute it and/or modify
@@ -51,11 +52,43 @@
     (tabify (point-min) (point-max))))
 
 (define-derived-mode ebuild-mode shell-script-mode "Ebuild"
-  "Major mode for Gentoo GNU/Linux .ebuild and .eclass files"
+  "Major mode for Portage .ebuild and .eclass files."
   (font-lock-add-keywords 'ebuild-mode
-   (list (ebuild-mode-make-keywords-list ebuild-commands-0 'font-lock-type-face)
-         (ebuild-mode-make-keywords-list ebuild-commands-1 'font-lock-warning-face)
-	 (ebuild-mode-make-keywords-list ebuild-commands-2 'font-lock-type-face)))
+   (list (ebuild-mode-make-keywords-list ebuild-mode-commands-0 'font-lock-type-face)
+         (ebuild-mode-make-keywords-list ebuild-mode-commands-1 'font-lock-warning-face)
+	 (ebuild-mode-make-keywords-list ebuild-mode-commands-2 'font-lock-type-face)))
+  (add-hook 'write-file-functions 'delete-trailing-whitespace t t)
+  (add-hook 'write-file-functions 'ebuild-mode-tabify t t)
+  (setq tab-width 4
+        indent-tabs-mode t))
+
+(defvar eselect-mode-commands-0
+  '("die" "is_function" "has"))
+
+(defvar eselect-mode-commands-1
+  '("store_config" "load_config" "add_config"))
+
+(defvar eselect-mode-commands-2
+  '("svn_date_to_version"))
+
+(defvar eselect-mode-commands-3
+  '("list_libdirs"))
+
+(defvar eselect-mode-commands-4
+  '("write_error_msg" "write_list_start" "write_kv_list_entry" "write_numbered_list_entry" "write_numbered_list" "highlight" "highlight_warning" "space"))
+
+(defvar eselect-mode-commands-5
+  '("is_number"))
+
+(define-derived-mode eselect-mode shell-script-mode "Eselect"
+  "Major mode for Portage .eselect files."
+  (font-lock-add-keywords 'eselect-mode
+   (list (ebuild-mode-make-keywords-list eselect-mode-commands-0 'font-lock-type-face)
+	 (ebuild-mode-make-keywords-list eselect-mode-commands-1 'font-lock-type-face)
+	 (ebuild-mode-make-keywords-list eselect-mode-commands-2 'font-lock-type-face)
+	 (ebuild-mode-make-keywords-list eselect-mode-commands-3 'font-lock-warning-face)
+	 (ebuild-mode-make-keywords-list eselect-mode-commands-4 'font-lock-type-face)
+	 (ebuild-mode-make-keywords-list eselect-mode-commands-5 'font-lock-type-face)))
   (add-hook 'write-file-functions 'delete-trailing-whitespace t t)
   (add-hook 'write-file-functions 'ebuild-mode-tabify t t)
   (setq tab-width 4
@@ -63,6 +96,7 @@
 
 ;; (add-to-list 'auto-mode-alist '("\\.ebuild\\'" . ebuild-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.eclass\\'" . ebuild-mode))
+;; (add-to-list 'auto-mode-alist '("\\.eselect\\'" . eselect-mode))
 
 (provide 'ebuild-mode)
 

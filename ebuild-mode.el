@@ -94,6 +94,25 @@
   (setq tab-width 4
         indent-tabs-mode t))
 
+(defun ebuild-mode-run-command (command)
+  (let ((process-connection-type "t")
+	(buffer (format "*ebuild %s*" command)))
+    (start-process "ebuild-digest" buffer "env" "NOCOLOR=yes" "ebuild" (buffer-file-name) command)
+    (pop-to-buffer buffer)))
+
+(defmacro define-ebuild-mode-command (key command)
+  (let ((name (intern (format "ebuild-mode-command-%s" command))))
+    `(progn
+       (defun ,name ()
+	 ,(format "Runs the ebuild %s command for the ebuild in the current buffer" command)
+	 (interactive)
+	 (ebuild-mode-run-command ,command))
+       (define-key ebuild-mode-map ,key ',name))))
+
+(define-ebuild-mode-command "\C-ced" "digest")
+(define-ebuild-mode-command "\C-cef" "fetch")
+(define-ebuild-mode-command "\C-ceu" "unpack")
+
 ;; (add-to-list 'auto-mode-alist '("\\.ebuild\\'" . ebuild-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.eclass\\'" . ebuild-mode))
 ;; (add-to-list 'auto-mode-alist '("\\.eselect\\'" . eselect-mode))

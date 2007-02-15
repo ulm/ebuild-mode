@@ -21,6 +21,9 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
+(defvar ebuild-mode-hook nil
+  "List of functions to call when entering ebuild-mode")
+
 ;;; Commentary:
 
 ;; The commands have been grouped into lists of rough similarity.  If
@@ -30,7 +33,7 @@
 ;;; Code:
 
 (defvar ebuild-mode-commands-0
-  '("use" "has_version" "best_version" "use_with" "use_enable" "check_KV" "keepdir" "econf" "die" "einstall" "einfo" "ewarn" "eerror" "diropts" "dobin" "docinto" "dodoc" "doexe" "dohard" "dohtml" "doinfo" "doins" "dolib" "dolib.a" "dolib.so" "doman" "dosbin" "dosym" "emake" "exeinto" "exeopts" "fowners" "fperms" "insinto" "insopts" "into" "libopts" "newbin" "newexe" "newins" "newman" "newsbin" "prepall" "prepalldocs" "prepallinfo" "prepallman" "prepallstrip" "has" "unpack" "dopython" "dosed" "into" "doinitd" "doconfd" "doenvd" "dojar" "domo" "dodir" "ebegin" "eend" "newconfd" "newdoc" "newenvd" "newinitd" "newlib.a" "newlib.so" "hasq" "hasv" "useq" "usev"))
+  '("use" "has_version" "best_version" "use_with" "use_enable" "check_KV" "keepdir" "econf" "die" "einstall" "elog" "einfo" "ewarn" "eerror" "diropts" "dobin" "docinto" "dodoc" "doexe" "dohard" "dohtml" "doinfo" "doins" "dolib" "dolib.a" "dolib.so" "doman" "dosbin" "dosym" "emake" "exeinto" "exeopts" "fowners" "fperms" "insinto" "insopts" "into" "libopts" "newbin" "newexe" "newins" "newman" "newsbin" "prepall" "prepalldocs" "prepallinfo" "prepallman" "prepallstrip" "has" "unpack" "dopython" "dosed" "into" "doinitd" "doconfd" "doenvd" "dojar" "domo" "dodir" "ebegin" "eend" "newconfd" "newdoc" "newenvd" "newinitd" "newlib.a" "newlib.so" "hasq" "hasv" "useq" "usev"))
 
 (defvar ebuild-mode-commands-1
   '("addread" "addwrite" "adddeny" "addpredict"))
@@ -60,7 +63,10 @@
   (add-hook 'write-file-functions 'delete-trailing-whitespace t t)
   (add-hook 'write-file-functions 'ebuild-mode-tabify t t)
   (setq tab-width 4
-        indent-tabs-mode t))
+        indent-tabs-mode t)
+
+  ;; run user-defined hooks
+  (run-hooks 'ebuild-mode-hook))
 
 (defvar eselect-mode-commands-0
   '("die" "is_function" "has"))

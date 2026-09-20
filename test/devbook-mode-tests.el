@@ -90,6 +90,64 @@
     (search-forward "four")
     (should-not (devbook-fill-tag-nobreak-p))))
 
+(ert-deftest devbook-mode-test-extend-region ()
+  (defvar font-lock-beg)
+  (defvar font-lock-end)
+  (with-temp-buffer
+    (let (b1 b2 i1 i2 a1 a2)
+      (setq b1 (point)) (insert "<p>text</p>\n")
+      (setq b2 (point)) (insert "<codesample lang=\"ebuild\">\n")
+      (setq i1 (point)) (insert "# comment\n")
+      (setq i2 (point)) (insert "</codesample>")
+      (setq a1 (point)) (insert "\n<p>text</p>\n")
+      (setq a2 (point))
+      (let ((testcases
+	     (list (list b1 b2  nil b1 b2) ; both before
+		   (list b1 i1  t   b1 a1) ; start before, end inside
+		   (list i1 i2  t   b2 a1) ; both inside
+		   (list i2 a2  t   b2 a2) ; start inside, end after
+		   (list a1 a2  nil a1 a2) ; both after
+		   (list b2 a1  nil b2 a1) ; start before, end after
+		   )))
+	(dolist (test testcases)
+	  (let ((font-lock-beg (car test))
+		(font-lock-end (nth 1 test)))
+	    (should (equal (list (not (not (devbook-font-lock-extend-region)))
+				 font-lock-beg font-lock-end)
+			   (nthcdr 2 test)))))))))
+
+(ert-deftest devbook-mode-test-font-lock ()
+  (with-temp-buffer
+    (insert "<codesample lang=\"ebuild\">\n"
+	    "echo hello &gt;README\n"
+	    "dodoc README\n"
+	    "</codesample>\n")
+    (let ((devbook-fontify-codesamples-natively t))
+      (devbook-mode-test-run-silently
+       (devbook-mode)
+       (font-lock-ensure)))
+    (goto-char (point-min))
+    (search-forward "codesample")
+    (should (equal (get-text-property (match-beginning 0) 'face)
+		   '(nxml-element-local-name)))
+    (search-forward "gt")
+    (should (equal (get-text-property (match-beginning 0) 'face)
+		   '(nxml-entity-ref-name)))
+    (search-forward "dodoc")
+    (should (equal (get-text-property (match-beginning 0) 'face)
+		   '(nxml-text font-lock-builtin-face)))
+    (search-forward "</")
+    (should (equal (get-text-property (match-beginning 0) 'face)
+		   '(nxml-tag-delimiter)))
+    (let ((devbook-fontify-codesamples-natively nil))
+      (devbook-mode-test-run-silently
+       (devbook-mode)
+       (font-lock-ensure)))
+    (goto-char (point-min))
+    (search-forward "dodoc")
+    (should (equal (get-text-property (match-beginning 0) 'face)
+		   '(nxml-text)))))
+
 (ert-deftest devbook-mode-test-skeleton ()
   (with-temp-buffer
     (cl-letf* ((buffer-file-name "/home/larry/devmanual/quickstart/text.xml")

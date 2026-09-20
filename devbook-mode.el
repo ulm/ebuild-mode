@@ -32,6 +32,15 @@
 (require 'easymenu)
 (require 'skeleton)
 
+(defgroup devbook nil
+  "Major mode for editing the Gentoo Devmanual."
+  :group 'text)
+
+(defcustom devbook-fontify-codesamples-natively t
+  "When non-nil, fontify codesamples using their native major mode."
+  :type 'boolean
+  :group 'devbook)
+
 (defvar devbook-schema-file-name "devbook.rnc")
 
 (defun devbook-set-schema (&optional noerror)
@@ -110,6 +119,96 @@ between the element name and its first attribute."
   (add-hook 'fill-nobreak-predicate #'devbook-fill-tag-nobreak-p nil t)
   (unless rng-current-schema-file-name
     (devbook-set-schema t)))
+
+(defvar devbook-codesample-re
+  "<codesample\\>[^>]*\\<lang=[\"']\\([^\"']+\\)[\"'][^>]*>\
+\\([^<]+\\)</codesample>"
+  "Regexp matching a codesample element.
+Subexpressions 1 and 2 capture the value of the \"lang\" attribute
+and the element's text, respectively.")
+
+(defvar devbook-codesample-lang-modes
+  '(("c"      . c-mode)
+    ("ebuild" . ebuild-mode)
+    ("make"   . makefile-mode)
+    ("m4"     . m4-mode)
+    ;; "sgml" is pointless because <> must be escaped
+    )
+  "Alist of codesample languages and their major modes.")
+
+(defvar devbook-font-lock-keywords
+  `((,devbook-codesample-re
+     2 (devbook-fontify-codesample)))
+  "Expressions to highlight in `devbook-mode'.")
+
+(defun devbook-fontify-codesample ()
+  "Font-lock highlight function for codesamples."
+  (let* ((beg (match-beginning 2))
+	 (end (match-end 2))
+	 (lang (match-string-no-properties 1))
+	 (mode (cdr (assoc lang devbook-codesample-lang-modes)))
+	 (buf (current-buffer)))
+    ;; mark the whole codesample element as multiline construct
+    (put-text-property (match-beginning 0) (match-end 0)
+		       'font-lock-multiline t)
+    (when mode
+      ;; based on org-src-font-lock-fontify-block: copy the text
+      ;; to a dedicated buffer and let its native mode fontify it
+      (remove-text-properties beg end '(face nil))
+      (with-current-buffer
+	  (get-buffer-create
+	   (format " *devbook-fontify-codesample-%s*" lang))
+	(erase-buffer)
+	(insert-buffer-substring-no-properties buf beg end)
+	(unless (eq major-mode mode)
+	  (let ((inhibit-message t))
+	    (funcall mode)))
+	(font-lock-ensure)
+	(let* ((pos (point-min))
+	       (offset (- beg pos))
+	       next face)
+	  (while (progn
+		   (setq next (next-single-property-change pos 'face))
+		   (if (setq face (get-text-property pos 'face))
+		       (put-text-property (+ pos offset)
+					  (+ (or next (point-max)) offset)
+					  'face face buf))
+		   (setq pos next)))))
+      nil)))
+
+(defun devbook-codesample-bounds (pos)
+  "Find the bounds of any codesample element containing POS.
+Return a cons cell (BEG . END) if BEG < POS < END, or nil otherwise."
+  (save-excursion
+    (goto-char pos)
+    (while (and (not (looking-at-p "<[^/]"))
+		(search-backward "<" nil t)))
+    (and (looking-at devbook-codesample-re)
+	 (< (match-beginning 0) pos (match-end 0))
+	 (cons (match-beginning 0) (match-end 0)))))
+
+(defvar font-lock-beg)
+(defvar font-lock-end)
+
+(defun devbook-font-lock-extend-region ()
+  "Extend the font-lock region if it partially overlaps any codesample.
+Move `font-lock-beg' to the start of any codesample strictly
+containing it; likewise for `font-lock-end'.  Return non-nil
+if either variable was changed."
+  (let ((beg (devbook-codesample-bounds font-lock-beg))
+	(end (devbook-codesample-bounds font-lock-end)))
+    (if beg (setq font-lock-beg (car beg)))
+    (if end (setq font-lock-end (cdr end)))
+    (or beg end)))
+
+(defun devbook-add-font-lock ()
+  "Add `devbook-mode' font-lock keywords for the current buffer."
+  (when devbook-fontify-codesamples-natively
+    (font-lock-add-keywords nil devbook-font-lock-keywords)
+    (add-hook 'font-lock-extend-region-functions
+	      #'devbook-font-lock-extend-region)))
+
+(add-hook 'devbook-mode-hook #'devbook-add-font-lock)
 
 (define-skeleton devbook-insert-skeleton
   "Insert a skeleton for a DevBook XML document."

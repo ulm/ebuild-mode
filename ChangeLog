@@ -1,3 +1,19 @@
+2026-09-20  Ulrich Müller  <ulm@gentoo.org>
+
+	* devbook-mode.el (devbook): New customisation group.
+	(devbook-fontify-codesamples-natively): New custom variable.
+	(devbook-codesample-re, devbook-codesample-lang-modes)
+	(devbook-font-lock-keywords): New variables.
+	(devbook-fontify-codesample): New function, fontifies codesamples
+	for font-lock using their native major mode.
+	(devbook-codesample-bounds, devbook-font-lock-extend-region):
+	New functions, find the boundaries of any overlapping codesample
+	element and extend the font-lock region accordingly.
+	(devbook-add-font-lock): New hook function.
+	(devbook-mode-hook): Add it to the mode hook.
+	* test/devbook-mode-tests.el (devbook-mode-test-extend-region)
+	(devbook-mode-test-font-lock): New tests.
+
 2026-09-16  Ulrich Müller  <ulm@gentoo.org>
 
 	* ebuild-mode.el (ebuild-repo-mode): Fix byte-compiler warning.

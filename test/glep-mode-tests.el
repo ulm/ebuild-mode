@@ -123,7 +123,7 @@
       (insert preamble "Body text.\n")
       (should (equal
 	       (glep-mode-preamble-bounds)
-	       (list 1 (length preamble)))))
+	       (cons 1 (length preamble)))))
     (goto-char (point-min))
     (should (glep-mode-in-preamble-p (point)))
     (forward-line 3)

@@ -1,5 +1,8 @@
 2026-09-20  Ulrich Müller  <ulm@gentoo.org>
 
+	* glep-mode.el (glep-mode-preamble-bounds): Return a cons cell
+	instead of a list. Update all callers.
+
 	* devbook-mode.el (devbook): New customisation group.
 	(devbook-fontify-codesamples-natively): New custom variable.
 	(devbook-codesample-re, devbook-codesample-lang-modes)

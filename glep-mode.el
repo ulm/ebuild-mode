@@ -113,21 +113,20 @@ This will be added to the `write-contents-functions' hook."
 (add-hook 'glep-mode-hook #'glep-mode-add-font-lock)
 
 (defun glep-mode-preamble-bounds ()
-  "Return list with begin and end of the preamble, or nil if none found."
+  "Return (BEG . END) of the preamble, or nil if no preamble was found."
   (save-excursion
     (save-match-data
       (goto-char (point-min))
-      (and (re-search-forward glep-mode-delim-re
-			      glep-mode-preamble-limit t)
-	   (let ((beg (match-beginning 0)))
-	     (if (re-search-forward glep-mode-delim-re
-				    glep-mode-preamble-limit t)
-		 (list beg (match-end 0))))))))
+      (let (beg)
+	(and (re-search-forward glep-mode-delim-re glep-mode-preamble-limit t)
+	     (setq beg (match-beginning 0))
+	     (re-search-forward glep-mode-delim-re glep-mode-preamble-limit t)
+	     (cons beg (match-end 0)))))))
 
 (defun glep-mode-in-preamble-p (pos)
   "Return non-nil if position POS is inside the GLEP's preamble."
   (let ((pre (glep-mode-preamble-bounds)))
-    (and pre (>= pos (car pre)) (<= pos (cadr pre)))))
+    (and pre (<= (car pre) pos (cdr pre)))))
 
 (defun glep-mode-font-lock-match-delims (limit)
   "Match delimiters to be highlighted by font-lock.
@@ -151,19 +150,19 @@ LIMIT is the limit of the search."
 (defvar font-lock-end)
 
 (defun glep-mode-font-lock-extend-region ()
-  "Extend the font-lock region if it might be in a multi-line construct.
-Return non-nil if so.  Font-lock region is from `font-lock-beg'
-to `font-lock-end'."
+  "Extend the font-lock region if it partially overlaps the preamble.
+If `font-lock-beg' is in the preamble, move it to its start; likewise
+for `font-lock-end'.  Return non-nil if either variable was changed."
   (let ((pre (glep-mode-preamble-bounds))
 	ret)
     (when pre
       (and (> font-lock-beg (car pre))
-	   (<= font-lock-beg (cadr pre))
+	   (<= font-lock-beg (cdr pre))
 	   (setq font-lock-beg (car pre)
 		 ret t))
       (and (>= font-lock-end (car pre))
-	   (< font-lock-end (cadr pre))
-	   (setq font-lock-end (cadr pre)
+	   (< font-lock-end (cdr pre))
+	   (setq font-lock-end (cdr pre)
 		 ret t))
       ret)))
 

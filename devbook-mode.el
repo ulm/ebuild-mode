@@ -39,6 +39,7 @@
 (defcustom devbook-fontify-codesamples-natively t
   "When non-nil, fontify codesamples using their native major mode."
   :type 'boolean
+  :safe #'booleanp
   :group 'devbook)
 
 (defvar devbook-schema-file-name "devbook.rnc")

@@ -89,6 +89,7 @@ be applied to ebuilds but not to eclasses."
   :type '(choice (const :tag "Yes" t)
 		 (const :tag "No" nil)
 		 (const :tag "Ebuilds only" ebuild))
+  :safe (lambda (x) (memq x '(t nil ebuild)))
   :group 'ebuild)
 
 (defcustom ebuild-mode-update-copyright t
@@ -100,22 +101,26 @@ If nil, don't update."
   :type '(choice boolean
 		 (list (boolean :tag "Year")
 		       (boolean :tag "Author")))
+  :safe #'booleanp
   :group 'ebuild)
 
 (defcustom ebuild-mode-delete-cvs-line nil
   "If non-nil, delete any CVS $Id$ or $Header$ line before writing a file."
   :type 'boolean
+  :safe #'booleanp
   :group 'ebuild)
 
 (defcustom ebuild-mode-enable-bug-reference t
   "If non-nil, enable `bug-reference-prog-mode' in `ebuild-repo-mode'."
   :type 'boolean
+  :safe #'booleanp
   :group 'ebuild)
 
 (defcustom ebuild-mode-xml-indent-tabs nil
   "If non-nil, use tab characters for indenting of XML.
 If nil, use two spaces."
   :type 'boolean
+  :safe #'booleanp
   :group 'ebuild)
 
 (defcustom ebuild-mode-process-environment

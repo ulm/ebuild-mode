@@ -1,3 +1,11 @@
+2026-09-26  Ulrich Müller  <ulm@gentoo.org>
+
+	* ebuild-mode.el (ebuild-mode-fix-whitespace)
+	(ebuild-mode-update-copyright, ebuild-mode-delete-cvs-line)
+	(ebuild-mode-enable-bug-reference, ebuild-mode-xml-indent-tabs):
+	* devbook-mode.el (devbook-fontify-codesamples-natively):
+	Declare with safe-local-variable property.
+
 2026-09-20  Ulrich Müller  <ulm@gentoo.org>
 
 	* glep-mode.el (glep-mode-preamble-bounds): Return a cons cell

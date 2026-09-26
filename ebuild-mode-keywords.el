@@ -242,7 +242,7 @@
      "ecm-common_inject_heredoc" "ecm-common-check_deps"
      "ecm-common_pkg_setup" "ecm-common_src_prepare"
      "ecm-common_src_configure"
-     ;; edo
+     ;; edob
      "edob"
      ;; edos2unix
      "edos2unix"
@@ -284,9 +284,9 @@
      "append-libs" "raw-ldflags" "no-as-needed" "test-compile"
      "append-atomic-flags"
      ;; font
-     "font_wrap_opentype_compat" "font_xfont_config" "font_fontconfig"
-     "font_cleanup_dirs" "font_pkg_setup" "font_src_install"
-     "font_pkg_postinst" "font_pkg_postrm"
+     "font_bdf_to_otb" "font_wrap_opentype_compat" "font_xfont_config"
+     "font_fontconfig" "font_cleanup_dirs" "font_pkg_setup" "font_src_compile"
+     "font_src_install" "font_pkg_postinst" "font_pkg_postrm"
      ;; font-ebdftopcf
      "ebdftopcf" "font-ebdftopcf_src_compile"
      ;; fortran-2
@@ -508,10 +508,10 @@
      "nginx_src_compile" "nginx_src_test" "nginx_src_install"
      "nginx_pkg_postinst"
      ;; nginx-module
-     "econf_ngx" "ngx_mod_pkg_to_sonames" "ngx_mod_append_libs"
-     "ngx_mod_setup_link_modules" "ngx_mod_link_module" "ngx_mod_link_lib"
-     "ngx_gen_dep" "ngx_force_module" "ngx_usex_module"
-     "nginx-module_src_prepare" "nginx-module_src_configure"
+     "econf_ngx" "ngx_mod_pkg_to_sonames" "ngx_mod_prepend_ldflags"
+     "ngx_mod_append_ldflags" "ngx_mod_setup_link_modules"
+     "ngx_mod_link_module" "ngx_mod_link_lib" "ngx_gen_dep" "ngx_force_module"
+     "ngx_usex_module" "nginx-module_src_prepare" "nginx-module_src_configure"
      "nginx-module_src_compile" "nginx-module_src_test"
      "nginx-module_src_install" "nginx-module_pkg_postinst"
      ;; ninja-utils

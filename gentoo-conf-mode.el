@@ -38,7 +38,12 @@
      ;; highlight any disabled (-foo) USE flags
      ("[ \t\n\"]\\(-[^ \t\n\"]+\\)"
       (gentoo-conf-font-lock-pre-form) nil
-      (1 'font-lock-warning-face t))))
+      (1 'font-lock-warning-face t)))
+    ;; whitespace before or after the equals sign
+    ("^[^\"#=\n]*?\\(?:\\([ \t]+\\)=\\([ \t]+\\)?\\|=\\(?2:[ \t]+\\)\\)\
+\\(?:\"\\|\\\\$\\)"
+     (1 'trailing-whitespace t t)
+     (2 'trailing-whitespace t t)))
   "Expressions to highlight in `gentoo-conf-mode'.")
 
 (defun gentoo-conf-font-lock-pre-form ()
